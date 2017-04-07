@@ -11,10 +11,38 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Auth::routes();
+Route::get('/', 'HomeController@index');
 
 Route::get('/home', 'HomeController@index');
+
+Route::group(['middleware' => 'web'], function () {
+
+    Auth::routes();
+
+    Route::get('/author',[
+        'uses' => 'HomeController@getAuthorPage',
+        'as' => 'author',
+        'middleware'=>'roles',
+        'roles' => ['Author','Admin']
+    ]);
+    Route::get('/admin',[
+        'uses' => 'HomeController@getAdminPage',
+        'as' => 'admin',
+        'middleware'=>'roles',
+        'roles' => 'Admin'
+    ]);
+    Route::get('/author/article', [
+        'uses' => 'HomeController@getGenerateArticle',
+        'as' => 'author/article',
+        'middleware'=>'roles',
+        'roles' => ['Author']
+    ]);
+    Route::post('/admin/assign', [
+        'uses' => 'HomeController@postAdminAssignRoles',
+        'as' => '/admin/assign',
+        'middleware'=>'roles',
+        'roles' => 'Admin'
+    ]);
+    Route::get('logout', '\App\Http\Controllers\Auth\LoginController@logout');
+
+});
